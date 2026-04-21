@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: app
+  namespace: pigeongram
+spec:
+  selector:
+    app: pigeongram
+  ports:
+    - port: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pigeongram
+  namespace: pigeongram
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pigeongram
+  template:
+    metadata:
+      labels:
+        app: pigeongram
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/pavlovvitaly/pigeongram:latest
+          imagePullPolicy: Always
+          env:
+            - name: DB_HOST
+              value: "postgres"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              value: "pigeongram"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pigeongram-secrets
+                  key: db-password
+            - name: DB_NAME
+              value: "pigeongram"
+            - name: DB_SSLMODE
+              value: "disable"
+            - name: REDIS_HOST
+              value: "redis"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pigeongram-secrets
+                  key: redis-password
+            - name: REDIS_ENABLED
+              value: "true"
+            - name: MINIO_ENDPOINT
+              value: "minio:9000"
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pigeongram-secrets
+                  key: minio-root-user
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pigeongram-secrets
+                  key: minio-root-password
+            - name: MINIO_USE_SSL
+              value: "false"
+            - name: MINIO_BUCKET
+              value: "pigeongram-files"
+            - name: MINIO_PUBLIC_URL
+              value: "https://pigeongram.com.ru"
+            - name: SERVER_ENVIRONMENT
+              value: "production"
+          ports:
+            - containerPort: 8080

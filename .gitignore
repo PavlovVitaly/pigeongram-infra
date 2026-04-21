@@ -1,0 +1,14 @@
+# Secrets
+k3s/secrets.yaml
+*.env
+
+# Backups
+*.sql
+*.backup
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
