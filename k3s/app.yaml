@@ -24,6 +24,8 @@ spec:
       labels:
         app: pigeongram
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - name: app
           image: ghcr.io/pavlovvitaly/pigeongram:latest
