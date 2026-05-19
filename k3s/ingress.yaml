@@ -10,17 +10,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "75"
     nginx.ingress.kubernetes.io/websocket-services: "app"
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      proxy_set_header Cookie $http_cookie;
-      proxy_set_header Authorization $http_authorization;
-      proxy_set_header X-Forwarded-Proto $scheme;
-    nginx.ingress.kubernetes.io/server-snippet: |
-      location /stub_status {
-          stub_status;
-          allow 127.0.0.1;
-          allow 10.0.0.0/8;
-          deny all;
-      }
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
   ingressClassName: nginx
   tls:
