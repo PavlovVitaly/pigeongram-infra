@@ -10,7 +10,6 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "75"
     nginx.ingress.kubernetes.io/websocket-services: "app"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
   ingressClassName: nginx
   tls:
@@ -21,6 +20,15 @@ spec:
     - host: pigeongram.com.ru
       http:
         paths:
+          # Сначала MinIO API
+          - path: /minio/
+            pathType: Prefix
+            backend:
+              service:
+                name: minio
+                port:
+                  number: 9000
+          # Потом всё остальное на приложение
           - path: /
             pathType: Prefix
             backend:
