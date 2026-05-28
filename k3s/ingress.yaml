@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: pigeongram
+  name: pigeongram-app
   namespace: pigeongram
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
@@ -9,7 +9,6 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
     nginx.ingress.kubernetes.io/websocket-services: "app"
-    nginx.ingress.kubernetes.io/rewrite-target: /$1   # ← главная строка
 spec:
   ingressClassName: nginx
   tls:
@@ -20,15 +19,6 @@ spec:
     - host: pigeongram.com.ru
       http:
         paths:
-          # Путь для MinIO с перезаписью
-          - path: /minio/(.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: minio
-                port:
-                  number: 9000
-          # Всё остальное — приложению
           - path: /
             pathType: Prefix
             backend:
@@ -36,3 +26,30 @@ spec:
                 name: app
                 port:
                   number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pigeongram-minio
+  namespace: pigeongram
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - pigeongram.com.ru
+      secretName: pigeongram-tls
+  rules:
+    - host: pigeongram.com.ru
+      http:
+        paths:
+          - path: /minio/(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: minio
+                port:
+                  number: 9000
